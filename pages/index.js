@@ -25,11 +25,7 @@ export default function Home() {
 
   const githubUser = 'henriquegouveia1';
 
-  const [comunidades, setComunidades] = React.useState([{
-    id: '129381923123',
-    title: 'Eu odeio acordar cedo',
-    image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
-  }]);
+  const [comunidades, setComunidades] = React.useState([]);
 
   const pessoasFavoritas = [
     'luma8',
@@ -41,16 +37,43 @@ export default function Home() {
   ]
 
   const [seguidores, setSeguidores] = React.useState([])
- 
+
   React.useEffect(() => {
     fetch('http://api.github.com/users/henriquegouveia1/followers')
-    .then((resDoServidor)=>{
-      return resDoServidor.json();
+      .then((resDoServidor) => {
+        return resDoServidor.json();
+      })
+      .then((resCompleta) => {
+        setSeguidores(resCompleta)
+      })
+
+    fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      headers: {
+        'Authorization': '6910247fadb2ee1832e3533af57c4c',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+
+      },
+      body: JSON.stringify({
+        "query": `query {
+          allCommunities {
+            id
+            title
+            imageUrl
+            creatorSlug
+          },
+        
+        }`})
     })
-    .then((resCompleta)=>{
-      setSeguidores(resCompleta)
+    .then((response)=> response.json())
+    .then((respostaCompleta)=>{
+      const comuniDato = respostaCompleta.data.allCommunities;
+      setComunidades(comuniDato)
     })
-  },[])
+
+
+  }, [])
 
   return (
     <>
